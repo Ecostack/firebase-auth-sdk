@@ -1,0 +1,23 @@
+{
+  "name": "firebase-auth-sdk",
+  "version": "0.0.3",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "repository": "Ecostack/firebase-auth-sdk",
+  "scripts": {
+    "build": "tsc",
+    "prepare": "npm run build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "typescript": "^5.8.2"
+  },
+  "dependencies": {
+  },
+  "files": [
+    "dist"
+  ]
+}
