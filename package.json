@@ -1,6 +1,6 @@
 {
   "name": "firebase-auth-sdk",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "repository": "Ecostack/firebase-auth-sdk",
@@ -10,7 +10,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "description": "",
   "devDependencies": {
     "typescript": "^5.8.2"
