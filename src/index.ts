@@ -1,4 +1,3 @@
-
 export class HttpError extends Error {
     statusCode: number;
     data: any;
@@ -19,6 +18,13 @@ export interface FirebaseUser {
     displayName: string;
     idToken: string;
     registered: boolean;
+    refreshToken: string;
+    expiresIn: string;
+}
+
+export interface FirebaseCustomTokenResponse {   
+    kind: string;
+    idToken: string;
     refreshToken: string;
     expiresIn: string;
 }
@@ -60,12 +66,42 @@ export interface FirebaseUpdateProfileResponse {
     emailVerified: boolean;
 }
 
+export interface FirebaseConfirmEmailResponse {
+    kind: string;
+    email: string;
+    providerUserInfo: ProviderUserInfo[];
+    passwordHash: string;
+    emailVerified: boolean;
+    localId: string;
+}
+
+export interface FirebaseDeleteResponse {
+    kind: string;
+}
+
+export interface FirebaseVerifyEmailResponse {
+    kind: string;
+    email: string;
+}
+
 export interface ProviderUserInfo {
     providerId: string;
-    displayName: string;
+    displayName?: string;
     federatedId: string;
     email: string;
     rawId: string;
+}
+
+export interface FirebaseErrorResponse {
+    error: {
+        code: number;
+        message: string;
+        errors: {
+            message: string;
+            domain: string;
+            reason: string;
+        }[];
+    };
 }
 
 export interface LookupInfoResponse {
@@ -89,6 +125,40 @@ export interface LookupInfoResponse {
         lastRefreshAt: string;
     }>;
 }
+
+export interface FirebaseChangeEmailResponse {
+    idToken?: string;
+    refreshToken?: string;
+    expiresIn?: string;
+    localId: string;
+    email: string;
+    providerUserInfo: ProviderUserInfo[];
+    passwordHash: string;
+}
+
+export interface FirebaseChangePasswordResponse {
+    idToken?: string;
+    refreshToken?: string;
+    expiresIn?: string;
+    localId: string;
+    email: string;
+    providerUserInfo: ProviderUserInfo[];
+    passwordHash: string;
+}
+
+export interface FirebaseLinkResponse {
+    idToken?: string;
+    refreshToken?: string;
+    expiresIn?: string;
+    localId: string;
+    email: string;
+    displayName?: string;
+    photoUrl?: string;
+    passwordHash: string;
+    providerUserInfo: ProviderUserInfo[];
+    emailVerified: boolean;
+}
+
 
 //https://firebase.google.com/docs/reference/rest/auth
 
@@ -216,5 +286,76 @@ export class FirebaseAuthSDK {
         } catch {
             return false;
         }
+    }
+
+    async sendEmailVerification(idToken: string) {
+        return this.request('sendOobCode', {
+            requestType: 'VERIFY_EMAIL',
+            idToken,
+        }) as Promise<FirebaseVerifyEmailResponse | FirebaseErrorResponse>;
+    }
+
+    async confirmEmailVerification(oobCode: string) {
+        return this.request('update', {
+            oobCode,
+        }) as Promise<FirebaseConfirmEmailResponse | FirebaseErrorResponse>;
+    }
+
+    async deleteAccount(idToken: string) {
+        return this.request('delete', {
+            idToken,
+        }) as Promise<FirebaseDeleteResponse | FirebaseErrorResponse>;
+    }
+
+    async changeEmail(idToken: string, newEmail: string, returnSecureToken = true) {
+        return this.request('update', {
+            idToken,
+            email: newEmail,
+            returnSecureToken,
+        }) as Promise<FirebaseChangeEmailResponse | FirebaseErrorResponse>;
+    }
+
+    async changePassword(idToken: string, newPassword: string, returnSecureToken = true) {
+        return this.request('update', {
+            idToken,
+            password: newPassword,
+            returnSecureToken,
+        }) as Promise<FirebaseChangePasswordResponse | FirebaseErrorResponse>;
+    }
+
+    async signInAnonymously() {
+        return this.request('signUp', {
+            returnSecureToken: true,
+        }) as Promise<FirebaseSignupResponse | FirebaseErrorResponse>;
+    }
+
+    async signInWithCustomToken(token: string) {
+        return this.request('signInWithCustomToken', {
+            token,
+            returnSecureToken: true,
+        }) as Promise<FirebaseCustomTokenResponse | FirebaseErrorResponse>;
+    }
+
+
+    async linkWithPassword(idToken: string, email: string, password: string) {
+        return this.request('update', {
+            idToken,
+            email,
+            password,
+            returnSecureToken: true,
+        }) as Promise<FirebaseLinkResponse | FirebaseErrorResponse>;
+    }
+
+    async unlinkProvider(idToken: string, deleteProvider: string[]) {
+        return this.request('update', {
+            idToken,
+            deleteProvider,
+        }) as Promise<FirebaseLinkResponse | FirebaseErrorResponse>;
+    }
+
+    async isEmailRegistered(email: string) {
+        const response = await this.createAuthRUI(email, 'http://localhost');
+
+        return response.registered;
     }
 }
